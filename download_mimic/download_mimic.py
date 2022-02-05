@@ -100,19 +100,22 @@ with Bar(f"Downloading image files", max=int(len(paths))) as bar:
 
 # %%
 # Creating zip archive
-zipf = zipfile.ZipFile('../data/mimic-cxr-iv.zip', 'w', zipfile.ZIP_LZMA)
+zipf = zipfile.ZipFile('../data/mimic-cxr-iv.zip', 'w', zipfile.ZIP_DEFLATED, allowZip64=True)
 
 ## Storing df files
 for file in files:
     file_path = f"../data/{file}"
-    zipf.write(file_path)
+    zipf.write(file_path, arcname=file)
 
 ## Storing files folder
 image_files = glob.glob("../data/files/**/*.jpg", recursive=True)
 for image_file in image_files:
-    zipf.write(image_file)
+    zipf.write(image_file, "/".join(image_file.split("/")[2:]))
 
 zipf.close()
 
 # %%
 # Writting the metadata informations
+file_size = os.path.getsize("../data/mimic-cxr-iv.zip")
+with open("../download_data/metadata", "w") as f:
+    f.write(f"mimic-cxr-iv.zip:{file_size}")

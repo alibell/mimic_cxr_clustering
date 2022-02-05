@@ -29,14 +29,20 @@ def download_data(token, folder):
 
     # Download the file
     print("Downloading MIMIC-IV data")
-    uri = f"{file_uri}/{token}"
-    r = requests.get(uri, stream=True)
-    file_size = int(int(r.headers.get('content-length'))/1000)
+    download_file = True
+    if os.path.exists(file_path) and os.path.getsize(file_path) == int(file_size):
+        download_file = False
 
-    with open(file_path, "wb") as f:
-        with Bar(f"Downloading {file_name}", max=int(file_size)) as bar:
-            for chunck in r.iter_content(chunk_size=1024):
-                f.write(chunck)
+    if download_file:
+        uri = f"{file_uri}/{token}"
+        r = requests.get(uri, stream=True)
+        download_size = int(int(r.headers.get('content-length'))/1000)
+
+        with open(file_path, "wb") as f:
+            with Bar(f"Downloading {file_name}", max=int(download_size)) as bar:
+                for chunck in r.iter_content(chunk_size=1024):
+                    f.write(chunck)
+                    bar.next()
 
     # Unzip the file
     print("Unziping downloaded file")
