@@ -27,6 +27,12 @@ def download_data(token, folder):
 
     file_path = f"{folder}/{file_name}"
 
+    # Creating data folder
+    try:
+        os.mkdir("./data")
+    except:
+        pass
+
     # Download the file
     print("Downloading MIMIC-IV data")
     download_file = True
