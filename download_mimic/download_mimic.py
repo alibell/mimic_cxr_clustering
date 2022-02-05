@@ -8,6 +8,8 @@ import pycurl
 import pandas as pd
 import os
 import glob
+from progress.bar import Bar
+import zipfile
 
 #%%
 # Parameters
@@ -34,7 +36,8 @@ def download_file(username, password, uri, path, verbose=True):
     c.setopt(pycurl.URL, uri)
 
     with open(path, "wb") as f:
-        print(f"Writting {path}")
+        if verbose:
+            print(f"Writting {path}")
         c.setopt(pycurl.WRITEDATA, f)
         c.perform()
         c.close()
@@ -81,19 +84,35 @@ paths = ("files/p"+metadata_df["subject_id_str"].str.slice(0,2)+"/"+ \
     "s"+metadata_df["study_id_str"]+"/" + \
     metadata_df["dicom_id"] + ".jpg").tolist()
 
-for path in paths:
-    subfolder = "/".join(path.split("/")[0:-1])
-    folder = f"../data/{subfolder}"
-    filename = path.split("/")[-1]
-    filepath = f"{folder}/{filename}"
-    fileuri = f"{mimic_uri}{path}"
+with Bar(f"Downloading image files", max=int(len(paths))) as bar:
+    for path in paths:
+        subfolder = "/".join(path.split("/")[0:-1])
+        folder = f"../data/{subfolder}"
+        filename = path.split("/")[-1]
+        filepath = f"{folder}/{filename}"
+        fileuri = f"{mimic_uri}{path}"
 
-    # Creating folder
-    os.makedirs(folder, exist_ok=True)
+        # Creating folder
+        os.makedirs(folder, exist_ok=True)
 
-    # Getting file
-    print(f"Downloading {filename}")
-    download_file(username, password, fileuri, filepath, verbose=False)
+        # Getting file
+        download_file(username, password, fileuri, filepath, verbose=False)
 
 # %%
-# Converting files to JPG
+# Creating zip archive
+zipf = zipfile.ZipFile('../data/mimic-cxr-iv.zip', 'w', zipfile.ZIP_LZMA)
+
+## Storing df files
+for file in files:
+    file_path = f"../data/{file}"
+    zipf.write(file_path)
+
+## Storing files folder
+image_files = glob.glob("../data/files/**/*.jpg", recursive=True)
+for image_file in image_files:
+    zipf.write(image_file)
+
+zipf.close()
+
+# %%
+# Writting the metadata informations

@@ -1,4 +1,3 @@
 pycurl
 pandas
-pydicom
-pylibjpeg
+progress

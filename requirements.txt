@@ -1,1 +1,5 @@
 progress
+pandas
+torch
+pillow
+numpy
