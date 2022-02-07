@@ -135,3 +135,6 @@ credential*
 # No data on git
 data/*
 no_git*
+
+# Models
+models/*

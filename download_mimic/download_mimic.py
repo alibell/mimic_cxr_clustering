@@ -119,3 +119,4 @@ zipf.close()
 file_size = os.path.getsize("../data/mimic-cxr-iv.zip")
 with open("../download_data/metadata", "w") as f:
     f.write(f"mimic-cxr-iv.zip:{file_size}")
+    f.write(f"mimic-cxr-reports.zip":141942511)
