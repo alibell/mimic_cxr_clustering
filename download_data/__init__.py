@@ -38,7 +38,7 @@ def download_data(token, folder):
         # Download the file
         print(f"Downloading {file[0]}")
         download_file = True
-        if os.path.exists(file_path) and os.path.getsize(file_path) == int(file[0]):
+        if os.path.exists(file_path) and os.path.getsize(file_path) == int(file[1]):
             download_file = False
 
         if download_file:
