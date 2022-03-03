@@ -3,3 +3,5 @@ pandas
 torch
 pillow
 numpy
+fasttext
+tqdm

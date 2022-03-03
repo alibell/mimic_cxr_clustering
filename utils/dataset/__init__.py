@@ -1,4 +1,5 @@
 from torch.utils.data import Dataset, DataLoader
+from collections.abc import Iterable
 import numpy as np
 from PIL import Image
 
@@ -82,6 +83,8 @@ class imageDataset(Dataset):
             indices = range(start, stop, step)
         elif isinstance(s, int):
             indices = [s]
+        elif isinstance(s, Iterable):
+            indices = s
         else:
             raise NotImplementedError
         
