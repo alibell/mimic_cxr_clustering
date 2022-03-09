@@ -69,5 +69,6 @@ class BertEmbedder(Embedder):
                     embedding
                 )
         embeddings = torch.concat(embeddings, axis=0)
+        embeddings = embeddings.cpu().numpy()
 
         return embeddings
