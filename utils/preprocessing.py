@@ -152,10 +152,10 @@ def get_data(data_folder="./data", annotations_path=None, split_annotation=True)
 
     if annotations_path is not None and split_annotation:
         mask = (df_expert[df_expert.columns[df_expert.columns.str.contains("annotation")]].isna()).sum(axis=1) == 0
-        df_expert_annotation = df_expert[mask].reset_index()
-        df_expert_no_annotation = df_expert[mask == False].reset_index()
-        df_metadata_annotation = df_metadata[mask].reset_index()
-        df_metadata_no_annotation = df_metadata[mask == False].reset_index()
+        df_expert_annotation = df_expert[mask].reset_index(drop=True)
+        df_expert_no_annotation = df_expert[mask == False].reset_index(drop=True)
+        df_metadata_annotation = df_metadata[mask].reset_index(drop=True)
+        df_metadata_no_annotation = df_metadata[mask == False].reset_index(drop=True)
         images_dataset_annotation = get_imageDataset(df_metadata=df_metadata_annotation, data_folder=data_folder)
         images_dataset_no_annotation = get_imageDataset(df_metadata=df_metadata_no_annotation, data_folder=data_folder)
 
