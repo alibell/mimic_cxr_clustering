@@ -30,7 +30,7 @@ class BertEmbedder(Embedder):
         else:
             self.device = "cpu"
         
-        # Loading bert model
+        # Loading bert model        
         self.bert_tokenizer = BertTokenizer.from_pretrained(BERT_MODEL)
         self.bert_model = BertModel.from_pretrained(BERT_MODEL)
 
