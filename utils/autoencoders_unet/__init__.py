@@ -200,7 +200,7 @@ class cxr_unet_ae (nn.Module):
         raise NotImplementedError()
 
     def normalize(self, x):
-        x_ = (x-x.min())/x.max()
+        x_ = (x-x.min())/(x.max()-x.min())
 
         return x_
 
