@@ -32,7 +32,7 @@ class UNetConv (nn.Module):
         for i, in_channel, out_channel in zip(range(2), [in_channels, out_channels], [out_channels, out_channels]):
             unet_blocks += [
                 nn.Conv2d(in_channels=in_channel, out_channels=out_channel, kernel_size=kernel_size, padding=padding),
-                nn.ReLU()
+                nn.LeakyReLU(negative_slope=1e-2)
             ]
             if batchnorm:
                 unet_blocks.append(
