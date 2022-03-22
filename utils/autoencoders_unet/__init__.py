@@ -229,6 +229,17 @@ class cxr_unet_ae (nn.Module):
 
         return loss
 
+    def predict (self, x, mode="fullpass"):
+        self.eval()
+
+        with torch.no_grad():
+            if mode == "encoder":
+                y_hat = self.encoder(x)
+            else:
+                y_hat = self.fullpass(x)
+
+        return y_hat
+
     def save_model (self, path):
         torch.save(self.state_dict(), path)
 
@@ -308,6 +319,17 @@ class cxr_unet_ae_2 (cxr_unet_ae):
         loss = [loss_reconstruction, loss_embedding]
 
         return loss
+
+    def predict (self, x, mode="fullpass", embedding=False):
+        self.eval()
+
+        with torch.no_grad():
+            if mode == "encoder":
+                y_hat = self.encoder(x)
+            else:
+                y_hat = self.fullpass(x, embedding=embedding)
+
+        return y_hat        
 
     def fullpass (self, x, embedding=True):
 
