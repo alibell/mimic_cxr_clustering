@@ -170,7 +170,7 @@ class cxr_unet_ae (nn.Module):
         )
         self.decoder_final_layer = nn.Sequential(
             nn.Conv2d(in_channels=64, out_channels=1, kernel_size=(1,1), padding=0),
-            nn.Tanh()
+            nn.Sigmoid()
         )
 
 
