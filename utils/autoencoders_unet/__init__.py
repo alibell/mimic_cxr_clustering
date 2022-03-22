@@ -145,10 +145,10 @@ class cxr_unet_ae (nn.Module):
 
         # Encoder
         self.encoder_params = [
-            {"in_channels":1, "out_channels":64, "kernel_size":(3,3), "padding":0, "batchnorm":False, "down_factor":2},
-            {"in_channels":64, "out_channels":128, "kernel_size":(3,3), "padding":0, "batchnorm":False, "down_factor":2},
-            {"in_channels":128, "out_channels":256, "kernel_size":(3,3), "padding":0, "batchnorm":False, "down_factor":2},
-            {"in_channels":256, "out_channels":512, "kernel_size":(3,3), "padding":0, "batchnorm":False, "down_factor":2},
+            {"in_channels":1, "out_channels":64, "kernel_size":(3,3), "padding":1, "batchnorm":False, "down_factor":2},
+            {"in_channels":64, "out_channels":128, "kernel_size":(3,3), "padding":1, "batchnorm":False, "down_factor":2},
+            {"in_channels":128, "out_channels":256, "kernel_size":(3,3), "padding":1, "batchnorm":False, "down_factor":2},
+            {"in_channels":256, "out_channels":512, "kernel_size":(3,3), "padding":1, "batchnorm":False, "down_factor":2},
         ]
         self.encoder_modules = nn.ModuleList(
             [UNetDownConv(**encoder_params) for encoder_params in self.encoder_params]
@@ -156,11 +156,11 @@ class cxr_unet_ae (nn.Module):
 
         # Decoder
         self.decoder_params = [
-            {"in_channels":512, "out_channels":1024, "kernel_size":(3,3), "padding":0, "batchnorm":False, "up_factor":2},
-            {"in_channels":1536, "out_channels":512, "kernel_size":(3,3), "padding":0, "batchnorm":False, "up_factor":2},
-            {"in_channels":768, "out_channels":256, "kernel_size":(3,3), "padding":0, "batchnorm":False, "up_factor":2},
-            {"in_channels":384, "out_channels":128, "kernel_size":(3,3), "padding":0, "batchnorm":False, "up_factor":2},
-            {"in_channels":192, "out_channels":64, "kernel_size":(3,3), "padding":0, "batchnorm":False, "up_factor":2}
+            {"in_channels":512, "out_channels":1024, "kernel_size":(3,3), "padding":1, "batchnorm":False, "up_factor":2},
+            {"in_channels":1536, "out_channels":512, "kernel_size":(3,3), "padding":1, "batchnorm":False, "up_factor":2},
+            {"in_channels":768, "out_channels":256, "kernel_size":(3,3), "padding":1, "batchnorm":False, "up_factor":2},
+            {"in_channels":384, "out_channels":128, "kernel_size":(3,3), "padding":1, "batchnorm":False, "up_factor":2},
+            {"in_channels":192, "out_channels":64, "kernel_size":(3,3), "padding":1, "batchnorm":False, "up_factor":2}
         ]
         self.decoder_modules = nn.ModuleList(
             [
