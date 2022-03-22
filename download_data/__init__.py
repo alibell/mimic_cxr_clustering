@@ -11,7 +11,7 @@ import zipfile
 
 #%%
 current_folder = pathlib.Path(__file__).parent.absolute()
-file_uri = "http://chessm2ds.alibellamine.me:5000/cxr/"
+file_uri = "http://m2ds.alibellamine.me:5000/cxr/"
 with open(f"{current_folder}/metadata", "r") as f:
     files = [tuple(x.split("\n")[0].split(":")) for x in f.readlines()]
 
