@@ -170,11 +170,11 @@ class cxr_unet_ae (nn.Module):
         )
         self.decoder_final_layer = nn.Sequential(
             nn.Conv2d(in_channels=64, out_channels=1, kernel_size=(1,1), padding=0),
-            nn.Sigmoid()
+            nn.Tanh()
         )
 
 
-        self.reconstruction_loss = nn.BCELoss()
+        self.reconstruction_loss = nn.MSELoss()
 
 
     def encoder (self, x):
@@ -215,10 +215,6 @@ class cxr_unet_ae (nn.Module):
     def fit (self, x, y):
         self.train()
         self.optimizer.zero_grad()
-
-        # Y should be between 0 and 1
-        with torch.no_grad():
-            y = (y-y.min())/y.max()
 
         # Creatining x with random noise
         noise = self.noise_std*torch.randn_like(x).to(x.device)
