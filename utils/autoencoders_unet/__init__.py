@@ -200,7 +200,7 @@ class cxr_unet_ae (nn.Module):
         raise NotImplementedError()
 
     def normalize(self, x):
-        # Betweend -1 and 1 for tanh
+        # Transforme the image between -1 and 1 for tanh
         x_ = 2*((x-x.min())/(x.max()-x.min())-0.5)
 
         return x_
@@ -227,6 +227,7 @@ class cxr_unet_ae (nn.Module):
 
         # Creatining x with random noise
         noise = self.noise_std*torch.randn_like(x).to(x.device)
+
         with torch.no_grad():
             x_with_noise = x + noise
 
@@ -268,7 +269,7 @@ class cxr_unet_ae_1 (cxr_unet_ae):
     def __init__ (self, noise_variance=1e-2):
         super().__init__(noise_variance=noise_variance)
 
-        self.optimizer = optim.Adam(self.parameters(), lr=1e-4)
+        self.optimizer = optim.Adam(self.parameters(), lr=1e-3)
 
     def compute_loss(self, y_hat, x, y=None):
 
