@@ -170,11 +170,11 @@ class cxr_unet_ae (nn.Module):
         )
         self.decoder_final_layer = nn.Sequential(
             nn.Conv2d(in_channels=64, out_channels=1, kernel_size=(1,1), padding=0),
-            nn.Tanh()
+            nn.Sigmoid()
         )
 
 
-        self.reconstruction_loss = nn.MSELoss()
+        self.reconstruction_loss = nn.BCELoss()
 
 
     def encoder (self, x):
@@ -199,6 +199,11 @@ class cxr_unet_ae (nn.Module):
     def compute_loss (self, y_hat, x, y):
         raise NotImplementedError()
 
+    def normalize(self, x):
+        x = (x-x.min())/x.max()
+
+        return x
+
     def forward (self, x):
         encoder_intermediates, x = self.encoder(x)
 
@@ -216,13 +221,16 @@ class cxr_unet_ae (nn.Module):
         self.train()
         self.optimizer.zero_grad()
 
+        # Compare the image to a normalized version of it
+        x_ = self.normalize(torch.clone(x))
+
         # Creatining x with random noise
         noise = self.noise_std*torch.randn_like(x).to(x.device)
         with torch.no_grad():
             x_with_noise = x + noise
 
         y_hat = self.fullpass(x_with_noise)
-        loss = self.compute_loss(y_hat, x, y)
+        loss = self.compute_loss(y_hat, x_, y)
         loss_sum = reduce(add, loss)
 
         loss_sum.backward()
