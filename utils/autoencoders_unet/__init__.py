@@ -33,6 +33,8 @@ class UNetConv (nn.Module):
             unet_blocks += [
                 nn.Conv2d(in_channels=in_channel, out_channels=out_channel, kernel_size=kernel_size, padding=padding),
                 nn.ReLU()
+                nn.Conv2d(in_channels=out_channel, out_channels=out_channel, kernel_size=kernel_size, padding=padding),
+                nn.ReLU()
             ]
             if batchnorm:
                 unet_blocks.append(
@@ -269,7 +271,7 @@ class cxr_unet_ae_1 (cxr_unet_ae):
     def __init__ (self, noise_variance=1e-2):
         super().__init__(noise_variance=noise_variance)
 
-        self.optimizer = optim.Adam(self.parameters(), lr=1e-4)
+        self.optimizer = optim.Adam(self.parameters(), lr=1e-5)
 
     def compute_loss(self, y_hat, x, y=None):
 
