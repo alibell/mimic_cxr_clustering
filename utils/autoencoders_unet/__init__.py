@@ -175,7 +175,6 @@ class cxr_unet_ae (nn.Module):
 
 
     def encoder (self, x):
-
         encoder_intermediates = []
         for encoder_module in self.encoder_modules:
             x_before, x = encoder_module(x)
