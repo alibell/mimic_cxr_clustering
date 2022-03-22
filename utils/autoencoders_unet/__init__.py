@@ -216,6 +216,10 @@ class cxr_unet_ae (nn.Module):
         self.train()
         self.optimizer.zero_grad()
 
+        # Y should be between 0 and 1
+        with torch.no_grad():
+            y = (y-y.min())/y.max()
+
         # Creatining x with random noise
         noise = self.noise_std*torch.randn_like(x).to(x.device)
         with torch.no_grad():
