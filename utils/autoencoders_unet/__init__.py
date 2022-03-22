@@ -224,8 +224,6 @@ class cxr_unet_ae (nn.Module):
         # Compare the image to a normalized version of it
         with torch.no_grad():
             x_ = self.normalize(torch.clone(x))
-            if x_.max() > 1:
-                raise ValueError("toto")
 
         # Creatining x with random noise
         noise = self.noise_std*torch.randn_like(x).to(x.device)
