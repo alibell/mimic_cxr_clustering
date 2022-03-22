@@ -174,7 +174,7 @@ class cxr_unet_ae (nn.Module):
         )
 
 
-        self.reconstruction_loss = nn.BCELoss()
+        self.reconstruction_loss = nn.HuberLoss(delta=1e-1)
 
 
     def encoder (self, x):
@@ -269,7 +269,7 @@ class cxr_unet_ae_1 (cxr_unet_ae):
     def __init__ (self, noise_variance=1e-2):
         super().__init__(noise_variance=noise_variance)
 
-        self.optimizer = optim.Adam(self.parameters(), lr=1e-4)
+        self.optimizer = optim.Adam(self.parameters(), lr=5e-3)
 
     def compute_loss(self, y_hat, x, y=None):
 
