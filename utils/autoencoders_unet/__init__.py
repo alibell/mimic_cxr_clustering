@@ -32,8 +32,6 @@ class UNetConv (nn.Module):
         for i, in_channel, out_channel in zip(range(2), [in_channels, out_channels], [out_channels, out_channels]):
             unet_blocks += [
                 nn.Conv2d(in_channels=in_channel, out_channels=out_channel, kernel_size=kernel_size, padding=padding),
-                nn.ReLU(),
-                nn.Conv2d(in_channels=out_channel, out_channels=out_channel, kernel_size=kernel_size, padding=padding),
                 nn.ReLU()
             ]
             if batchnorm:
@@ -145,10 +143,10 @@ class cxr_unet_ae (nn.Module):
 
         # Encoder
         self.encoder_params = [
-            {"in_channels":1, "out_channels":64, "kernel_size":(3,3), "padding":1, "batchnorm":False, "down_factor":2},
-            {"in_channels":64, "out_channels":128, "kernel_size":(3,3), "padding":1, "batchnorm":False, "down_factor":2},
-            {"in_channels":128, "out_channels":256, "kernel_size":(3,3), "padding":1, "batchnorm":False, "down_factor":2},
-            {"in_channels":256, "out_channels":512, "kernel_size":(3,3), "padding":1, "batchnorm":False, "down_factor":2},
+            {"in_channels":1, "out_channels":64, "kernel_size":(3,3), "padding":1, "batchnorm":True, "down_factor":2},
+            {"in_channels":64, "out_channels":128, "kernel_size":(3,3), "padding":1, "batchnorm":True, "down_factor":2},
+            {"in_channels":128, "out_channels":256, "kernel_size":(3,3), "padding":1, "batchnorm":True, "down_factor":2},
+            {"in_channels":256, "out_channels":512, "kernel_size":(3,3), "padding":1, "batchnorm":True, "down_factor":2},
         ]
         self.encoder_modules = nn.ModuleList(
             [UNetDownConv(**encoder_params) for encoder_params in self.encoder_params]
@@ -156,11 +154,11 @@ class cxr_unet_ae (nn.Module):
 
         # Decoder
         self.decoder_params = [
-            {"in_channels":512, "out_channels":1024, "kernel_size":(3,3), "padding":1, "batchnorm":False, "up_factor":2},
-            {"in_channels":1536, "out_channels":512, "kernel_size":(3,3), "padding":1, "batchnorm":False, "up_factor":2},
-            {"in_channels":768, "out_channels":256, "kernel_size":(3,3), "padding":1, "batchnorm":False, "up_factor":2},
-            {"in_channels":384, "out_channels":128, "kernel_size":(3,3), "padding":1, "batchnorm":False, "up_factor":2},
-            {"in_channels":192, "out_channels":64, "kernel_size":(3,3), "padding":1, "batchnorm":False, "up_factor":2}
+            {"in_channels":512, "out_channels":1024, "kernel_size":(3,3), "padding":1, "batchnorm":True, "up_factor":2},
+            {"in_channels":1536, "out_channels":512, "kernel_size":(3,3), "padding":1, "batchnorm":True, "up_factor":2},
+            {"in_channels":768, "out_channels":256, "kernel_size":(3,3), "padding":1, "batchnorm":True, "up_factor":2},
+            {"in_channels":384, "out_channels":128, "kernel_size":(3,3), "padding":1, "batchnorm":True, "up_factor":2},
+            {"in_channels":192, "out_channels":64, "kernel_size":(3,3), "padding":1, "batchnorm":True, "up_factor":2}
         ]
         self.decoder_modules = nn.ModuleList(
             [
@@ -171,12 +169,11 @@ class cxr_unet_ae (nn.Module):
             ]
         )
         self.decoder_final_layer = nn.Sequential(
-            nn.Conv2d(in_channels=64, out_channels=1, kernel_size=(1,1), padding=0),
-            nn.Tanh()
+            nn.Conv2d(in_channels=64, out_channels=1, kernel_size=(1,1), padding=0)
         )
 
 
-        self.reconstruction_loss = nn.MSELoss()
+        self.reconstruction_loss = nn.BCEWithLogitsLoss()
 
 
     def encoder (self, x):
@@ -202,8 +199,8 @@ class cxr_unet_ae (nn.Module):
         raise NotImplementedError()
 
     def normalize(self, x):
-        # Transforme the image between -1 and 1 for tanh
-        x_ = 2*((x-x.min())/(x.max()-x.min())-0.5)
+        # Transforme the image between 0 and 1 for sigmoid
+        x_ = (x-x.min())/(x.max()-x.min()
 
         return x_
 
@@ -271,7 +268,7 @@ class cxr_unet_ae_1 (cxr_unet_ae):
     def __init__ (self, noise_variance=1e-2):
         super().__init__(noise_variance=noise_variance)
 
-        self.optimizer = optim.Adam(self.parameters(), lr=1e-5)
+        self.optimizer = optim.Adam(self.parameters(), lr=1e-4)
 
     def compute_loss(self, y_hat, x, y=None):
 
