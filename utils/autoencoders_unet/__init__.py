@@ -310,9 +310,10 @@ class cxr_unet_ae_2 (cxr_unet_ae):
             nn.MaxPool2d((2,2)),
             nn.Conv2d(512, 512, (1,1), padding="same"),
             nn.BatchNorm2d(512),
+            nn.AdaptiveAvgPool2d((2,2)),
             nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(4608, 1024),
+            nn.Linear(2048, 1024),
             nn.ReLU(),
             nn.Linear(1024, embedding_size)
         )
