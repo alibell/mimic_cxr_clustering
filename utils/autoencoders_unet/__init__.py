@@ -274,6 +274,9 @@ class cxr_unet_ae_1 (cxr_unet_ae):
         # Center crop x to compare it with y_hat
         cropper = transforms.CenterCrop(y_hat.shape[2:])
         x_ = cropper(x)
+
+        if x_.max() > 1 or x_.min() < 0:
+            raise ValueError("toto")
         loss_reconstruction = self.reconstruction_loss(y_hat, x_)
 
         loss = [loss_reconstruction]
