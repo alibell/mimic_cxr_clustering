@@ -170,7 +170,7 @@ class cxr_unet_ae (nn.Module):
         )
         self.decoder_final_layer = nn.Sequential(
             nn.Conv2d(in_channels=64, out_channels=1, kernel_size=(1,1), padding=0),
-            nn.Sigmoid()
+            nn.Tanh()
         )
 
 
@@ -200,7 +200,8 @@ class cxr_unet_ae (nn.Module):
         raise NotImplementedError()
 
     def normalize(self, x):
-        x_ = (x-x.min())/(x.max()-x.min())
+        # Betweend -1 and 1 for tanh
+        x_ = 2*((x-x.min())/(x.max()-x.min())-0.5)
 
         return x_
 
@@ -222,8 +223,7 @@ class cxr_unet_ae (nn.Module):
         self.optimizer.zero_grad()
 
         # Compare the image to a normalized version of it
-        with torch.no_grad():
-            x_ = self.normalize(torch.clone(x))
+        x_ = self.normalize(torch.clone(x))
 
         # Creatining x with random noise
         noise = self.noise_std*torch.randn_like(x).to(x.device)
