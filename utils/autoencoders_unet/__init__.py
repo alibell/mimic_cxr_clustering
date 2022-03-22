@@ -169,11 +169,12 @@ class cxr_unet_ae (nn.Module):
             ]
         )
         self.decoder_final_layer = nn.Sequential(
-            nn.Conv2d(in_channels=64, out_channels=1, kernel_size=(1,1), padding=0)
+            nn.Conv2d(in_channels=64, out_channels=1, kernel_size=(1,1), padding=0),
+            nn.Sigmoid()
         )
 
 
-        self.reconstruction_loss = nn.BCEWithLogitsLoss()
+        self.reconstruction_loss = nn.BCELoss()
 
 
     def encoder (self, x):
@@ -316,7 +317,7 @@ class cxr_unet_ae_2 (cxr_unet_ae):
             nn.Linear(1024, embedding_size)
         )
         self.embedding_loss = nn.MSELoss()
-        self.optimizer = optim.Adam(self.parameters(), lr=1e-4)
+        self.optimizer = optim.Adam(self.parameters(), lr=5e-3)
 
     def compute_loss(self, y_hat, x, y=None):
 
