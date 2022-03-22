@@ -200,7 +200,7 @@ class cxr_unet_ae (nn.Module):
 
     def normalize(self, x):
         # Transforme the image between 0 and 1 for sigmoid
-        x_ = (x-x.min())/(x.max()-x.min()
+        x_ = (x-x.min())/(x.max()-x.min())
 
         return x_
 
