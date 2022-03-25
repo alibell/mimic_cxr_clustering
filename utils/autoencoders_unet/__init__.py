@@ -100,7 +100,7 @@ class UNetUpConv (UNetConv):
         else:
             self.upblock = nn.Sequential(
                 nn.Upsample(mode='bilinear', scale_factor=up_factor, align_corners=False),
-                nn.Conv2d(out_channels, out_channels, kernel_size=1)
+                nn.Conv2d(out_channels, out_channels, kernel_size=1, padding=padding)
             )
 
     def forward (self, x):
@@ -126,8 +126,6 @@ class skipConnection (nn.Module):
 
     def forward(self, x, y):
         cropper = transforms.CenterCrop(y.shape[2:])
-        x.shape
-        y.shape
         x_cropped = cropper(x)
 
         xy = torch.cat([x_cropped, y], axis=1)
