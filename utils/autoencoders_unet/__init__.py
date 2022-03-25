@@ -158,10 +158,12 @@ class cxr_unet_ae (nn.Module):
         self.encoder_modules = nn.ModuleList(
             [UNetDownConv(**encoder_params) for encoder_params in self.encoder_params]
         )
+        self.encoder_final_layer = nn.Sequential(
+            nn.Conv2d(in_channels=256, out_channels=512, kernel_size=(1,1), padding="same")
+        )
 
         # Decoder
         self.decoder_params = [
-            {"in_channels":256, "out_channels":512, "kernel_size":(3,3), "padding":"same", "batchnorm":True, "up_factor":2},
             {"in_channels":512, "out_channels":256, "kernel_size":(3,3), "padding":"same", "batchnorm":True, "up_factor":2},
             {"in_channels":256, "out_channels":128, "kernel_size":(3,3), "padding":"same", "batchnorm":True, "up_factor":2},
             {"in_channels":128, "out_channels":64, "kernel_size":(3,3), "padding":"same", "batchnorm":True, "up_factor":2}
@@ -178,7 +180,7 @@ class cxr_unet_ae (nn.Module):
             ]
         )
         self.decoder_final_layer = nn.Sequential(
-            nn.Conv2d(in_channels=64, out_channels=1, kernel_size=(1,1), padding=0)
+            nn.Conv2d(in_channels=64, out_channels=1, kernel_size=(1,1), padding="same")
         )
 
 
@@ -190,6 +192,8 @@ class cxr_unet_ae (nn.Module):
         for encoder_module in self.encoder_modules:
             x_before, x = encoder_module(x)
             encoder_intermediates.append(x_before)
+        
+        x = self.encoder_final_layer(x)
 
         return encoder_intermediates, x
 
@@ -274,8 +278,6 @@ class cxr_unet_ae_1 (cxr_unet_ae):
     def compute_loss(self, y_hat, x, y=None):
 
         # Center crop x to compare it with y_hat
-        print(x.shape)
-        print(y_hat.shape)
         cropper = transforms.CenterCrop(y_hat.shape[2:])
         x_ = cropper(x)
 
