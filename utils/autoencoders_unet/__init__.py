@@ -269,13 +269,15 @@ class cxr_unet_ae_1 (cxr_unet_ae):
     def __init__ (self, noise_variance=1e-2):
         super().__init__(noise_variance=noise_variance)
 
-        self.optimizer = optim.Adam(self.parameters(), lr=5e-3)
+        self.optimizer = optim.Adam(self.parameters(), lr=1e-3)
 
     def compute_loss(self, y_hat, x, y=None):
 
         # Center crop x to compare it with y_hat
         cropper = transforms.CenterCrop(y_hat.shape[2:])
         x_ = cropper(x)
+        print(x.shape)
+        print(y_hat.shape)
 
         loss_reconstruction = self.reconstruction_loss(y_hat, x_)
 
