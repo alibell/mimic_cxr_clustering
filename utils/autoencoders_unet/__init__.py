@@ -160,7 +160,7 @@ class cxr_unet_ae (nn.Module):
             [UNetDownConv(**encoder_params) for encoder_params in self.encoder_params]
         )
         self.encoder_final_layer = nn.Sequential(
-            nn.Conv2d(in_channels=256, out_channels=512, kernel_size=(1,1), padding="same")
+            nn.Conv2d(in_channels=512, out_channels=1024, kernel_size=(1,1), padding="same")
         )
 
         # Decoder
