@@ -176,7 +176,7 @@ class cxr_unet_ae (nn.Module):
         self.decoder_modules = nn.ModuleList(
             [
                 nn.ModuleList([
-                    skipConnection(in_channels=decoder_params["in_channels"]+encoders_param["out_channels"], out_channels=decoder_params["out_channels"]),
+                    skipConnection(in_channels=(decoder_params["in_channels"]+encoders_param["out_channels"]) if encoders_param is not None else decoder_params["in_channels"], out_channels=decoder_params["out_channels"]),
                     UNetUpConv(**decoder_params)
                 ]) for decoder_params, encoders_param  in zip(self.decoder_params, encoders_params)
             ]
