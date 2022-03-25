@@ -322,7 +322,7 @@ class cxr_unet_ae_2 (cxr_unet_ae):
             nn.Linear(1024, embedding_size)
         )
         self.embedding_loss = nn.MSELoss()
-        self.optimizer = optim.Adam(self.parameters(), lr=5e-3)
+        self.optimizer = optim.Adam(self.parameters(), lr=5e-4)
 
     def compute_loss(self, y_hat, x, y=None):
 
