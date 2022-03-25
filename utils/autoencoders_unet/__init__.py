@@ -278,6 +278,8 @@ class cxr_unet_ae_1 (cxr_unet_ae):
     def compute_loss(self, y_hat, x, y=None):
 
         # Center crop x to compare it with y_hat
+        print(x.shape)
+        print(y_hat.shape)
         cropper = transforms.CenterCrop(y_hat.shape[2:])
         x_ = cropper(x)
 
