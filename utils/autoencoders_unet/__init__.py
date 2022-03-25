@@ -174,7 +174,7 @@ class cxr_unet_ae (nn.Module):
         )
 
 
-        self.reconstruction_loss = nn.HuberLoss(delta=1e-1)
+        self.reconstruction_loss = nn.MSELoss()
 
 
     def encoder (self, x):
