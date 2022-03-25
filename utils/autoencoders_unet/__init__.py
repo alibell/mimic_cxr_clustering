@@ -121,7 +121,7 @@ class skipConnection (nn.Module):
     """
     def __init__ (self, in_channels, out_channels):
         super().__init__()
-        self.merge_convolution = nn.Conv2d(in_channels, out_channels, kernel_size=(1,1), padding="same")
+        self.merge_convolution = nn.Conv2d(in_channels+out_channels, out_channels, kernel_size=(1,1), padding="same")
 
     def forward(self, x, y):
         cropper = transforms.CenterCrop(y.shape[2:])
