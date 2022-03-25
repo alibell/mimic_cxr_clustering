@@ -119,12 +119,18 @@ class skipConnection (nn.Module):
 
     def forward(self, x, y):
         cropper = transforms.CenterCrop(y.shape[2:])
+        x.shape
+        y.shape
         x_cropped = cropper(x)
 
         xy = torch.cat([x_cropped, y], axis=1)
 
         # Merge convolution
+        n_layer_input = x_cropped.shape[1] + y.shape[1]
+        n_layer_output = max(x_cropped.shape[1], y.shape[1])
 
+        merge_convolution = nn.Conv2d(n_layer_input, n_layer_output, kernel_size=(1,1), padding="same")
+        xy = merge_convolution(xy)
 
         return xy
 
@@ -158,10 +164,10 @@ class cxr_unet_ae (nn.Module):
         # Decoder
         self.decoder_params = [
             {"in_channels":512, "out_channels":1024, "kernel_size":(3,3), "padding":"same", "batchnorm":True, "up_factor":2},
-            {"in_channels":1536, "out_channels":512, "kernel_size":(3,3), "padding":"same", "batchnorm":True, "up_factor":2},
-            {"in_channels":768, "out_channels":256, "kernel_size":(3,3), "padding":"same", "batchnorm":True, "up_factor":2},
-            {"in_channels":384, "out_channels":128, "kernel_size":(3,3), "padding":"same", "batchnorm":True, "up_factor":2},
-            {"in_channels":192, "out_channels":64, "kernel_size":(3,3), "padding":"same", "batchnorm":True, "up_factor":2}
+            {"in_channels":1024, "out_channels":512, "kernel_size":(3,3), "padding":"same", "batchnorm":True, "up_factor":2},
+            {"in_channels":512, "out_channels":256, "kernel_size":(3,3), "padding":"same", "batchnorm":True, "up_factor":2},
+            {"in_channels":256, "out_channels":128, "kernel_size":(3,3), "padding":"same", "batchnorm":True, "up_factor":2},
+            {"in_channels":128, "out_channels":64, "kernel_size":(3,3), "padding":"same", "batchnorm":True, "up_factor":2}
         ]
         self.decoder_modules = nn.ModuleList(
             [
