@@ -200,6 +200,8 @@ class cxr_unet_ae (nn.Module):
         encoder_intermediates = [None] + encoder_intermediates # To not process skip connection at first step
         for decoder_model, intermediate in zip(self.decoder_modules, encoder_intermediates):
             if intermediate is not None:
+                print(intermediate.shape)
+                print(x.shape)
                 x = decoder_model[0](intermediate, x)
             x = decoder_model[1](x)[1]
         output = self.decoder_final_layer(x)
