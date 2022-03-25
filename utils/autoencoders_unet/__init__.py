@@ -138,16 +138,18 @@ class cxr_unet_ae (nn.Module):
         CXR UNET AE Class model
     """
 
-    def __init__ (self, noise_variance=1e-2):
+    def __init__ (self, noise_variance=1e-2, p_salt_pepper_noise=0.2):
         """
         Parameters:
         -----------
         noise_variance: float, variance of the gaussian noise for this denoising auto-encoder
+        p_salt_pepper_noise: float, proportion of salt and pepper noise
         """
         super().__init__()
 
         # Getting backbone    
-        self.noise_std = noise_variance**(0.5)
+        self.noise_variance = noise_variance**(0.5)
+        self.p_salt_pepper_noise = p_salt_pepper_noise
 
         # Encoder
         self.encoder_params = [
@@ -188,6 +190,16 @@ class cxr_unet_ae (nn.Module):
 
         self.reconstruction_loss = nn.MSELoss()
 
+    def generate_noisy_image (self, images, variance, p_salt_pepper):
+        if variance != 0:
+            variance_noise = (variance**0.5)*torch.randn_like(images).to(images.device)
+            images = images + variance_noise
+        
+        if p_salt_pepper != 0:
+            salt_pepper_noise = ((torch.rand(images.shape) >= p_salt_pepper)*1).to(images.device)
+            images = images*salt_pepper_noise
+
+        return images
 
     def encoder (self, x):
         encoder_intermediates = []
@@ -232,10 +244,7 @@ class cxr_unet_ae (nn.Module):
         self.optimizer.zero_grad()
 
         # Creatining x with random noise
-        noise = self.noise_std*torch.randn_like(x).to(x.device)
-
-        with torch.no_grad():
-            x_with_noise = x + noise
+        x_with_noise = self.generate_noisy_image(x, variance=self.noise_variance, p_salt_pepper=self.p_salt_pepper_noise)
 
         y_hat = self.fullpass(x_with_noise)
         loss = self.compute_loss(y_hat, x, y)
