@@ -122,7 +122,7 @@ class skipConnection (nn.Module):
         x_cropped = cropper(x)
 
         xy = torch.cat([x_cropped, y], axis=1)
-        
+
         # Merge convolution
 
 
@@ -201,11 +201,6 @@ class cxr_unet_ae (nn.Module):
     def compute_loss (self, y_hat, x, y):
         raise NotImplementedError()
 
-    def normalize(self, x):
-        # Transforme the image between 0 and 1 for sigmoid
-        x_ = (x-x.min())/(x.max()-x.min())
-
-        return x_
 
     def forward (self, x):
         encoder_intermediates, x = self.encoder(x)
@@ -224,9 +219,6 @@ class cxr_unet_ae (nn.Module):
         self.train()
         self.optimizer.zero_grad()
 
-        # Compare the image to a normalized version of it
-        x_ = self.normalize(torch.clone(x))
-
         # Creatining x with random noise
         noise = self.noise_std*torch.randn_like(x).to(x.device)
 
@@ -234,7 +226,7 @@ class cxr_unet_ae (nn.Module):
             x_with_noise = x + noise
 
         y_hat = self.fullpass(x_with_noise)
-        loss = self.compute_loss(y_hat, x_, y)
+        loss = self.compute_loss(y_hat, x, y)
         loss_sum = reduce(add, loss)
 
         loss_sum.backward()
