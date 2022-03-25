@@ -202,6 +202,7 @@ class cxr_unet_ae (nn.Module):
             if intermediate is not None:
                 print(intermediate.shape)
                 print(x.shape)
+                print("___")
                 x = decoder_model[0](intermediate, x)
             x = decoder_model[1](x)[1]
         output = self.decoder_final_layer(x)
