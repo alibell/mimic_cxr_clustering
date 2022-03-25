@@ -1,4 +1,5 @@
 import torch
+import copy
 from torch import nn, optim
 from functools import reduce
 from operator import add
@@ -121,7 +122,7 @@ class skipConnection (nn.Module):
     """
     def __init__ (self, in_channels, out_channels):
         super().__init__()
-        self.merge_convolution = nn.Conv2d(in_channels+out_channels, out_channels, kernel_size=(1,1), padding="same")
+        self.merge_convolution = nn.Conv2d(in_channels, out_channels, kernel_size=(1,1), padding="same")
 
     def forward(self, x, y):
         cropper = transforms.CenterCrop(y.shape[2:])
@@ -169,12 +170,15 @@ class cxr_unet_ae (nn.Module):
             {"in_channels":256, "out_channels":128, "kernel_size":(3,3), "padding":"same", "batchnorm":True, "up_factor":2},
             {"in_channels":128, "out_channels":64, "kernel_size":(3,3), "padding":"same", "batchnorm":True, "up_factor":2}
         ]
+        encoders_params = copy.copy(self.encoders_params)
+        encoders_params.reverse() # Reversing the list
+        encoders_params = [None] + encoders_params # To not process skip connection at first step
         self.decoder_modules = nn.ModuleList(
             [
                 nn.ModuleList([
-                    skipConnection(in_channels=decoder_params["in_channels"], out_channels=decoder_params["out_channels"]),
+                    skipConnection(in_channels=decoder_params["in_channels"]+encoders_param["out_channels"], out_channels=decoder_params["out_channels"]),
                     UNetUpConv(**decoder_params)
-                ]) for decoder_params in self.decoder_params
+                ]) for decoder_params, encoders_param  in zip(self.decoder_params, encoders_params)
             ]
         )
         self.decoder_final_layer = nn.Sequential(
