@@ -122,6 +122,9 @@ class skipConnection (nn.Module):
         x_cropped = cropper(x)
 
         xy = torch.cat([x_cropped, y], axis=1)
+        
+        # Merge convolution
+
 
         return xy
 
@@ -169,8 +172,7 @@ class cxr_unet_ae (nn.Module):
             ]
         )
         self.decoder_final_layer = nn.Sequential(
-            nn.Conv2d(in_channels=64, out_channels=1, kernel_size=(1,1), padding=0),
-            nn.Sigmoid()
+            nn.Conv2d(in_channels=64, out_channels=1, kernel_size=(1,1), padding=0)
         )
 
 
