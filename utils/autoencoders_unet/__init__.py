@@ -170,7 +170,7 @@ class cxr_unet_ae (nn.Module):
             {"in_channels":256, "out_channels":128, "kernel_size":(3,3), "padding":"same", "batchnorm":True, "up_factor":2},
             {"in_channels":128, "out_channels":64, "kernel_size":(3,3), "padding":"same", "batchnorm":True, "up_factor":2}
         ]
-        encoders_params = copy.copy(self.encoders_params)
+        encoders_params = copy.copy(self.encoder_params)
         encoders_params.reverse() # Reversing the list
         encoders_params = [None] + encoders_params # To not process skip connection at first step
         self.decoder_modules = nn.ModuleList(
