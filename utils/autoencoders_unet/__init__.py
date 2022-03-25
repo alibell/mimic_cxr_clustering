@@ -113,9 +113,15 @@ class skipConnection (nn.Module):
         Skip connecter layer
         This layer get two images, the left one (x) and right one (y).
         It center crop the left image and concatenate them.
+
+        Parameters:
+        -----------
+        in_channels: numbers of input layers
+        out_channels: numbers of output layers
     """
-    def __init__ (self):
+    def __init__ (self, in_channels, out_channels):
         super().__init__()
+        self.merge_convolution = nn.Conv2d(in_channels, out_channels, kernel_size=(1,1), padding="same")
 
     def forward(self, x, y):
         cropper = transforms.CenterCrop(y.shape[2:])
@@ -124,13 +130,7 @@ class skipConnection (nn.Module):
         x_cropped = cropper(x)
 
         xy = torch.cat([x_cropped, y], axis=1)
-
-        # Merge convolution
-        n_layer_input = x_cropped.shape[1] + y.shape[1]
-        n_layer_output = max(x_cropped.shape[1], y.shape[1])
-
-        merge_convolution = nn.Conv2d(n_layer_input, n_layer_output, kernel_size=(1,1), padding="same")
-        xy = merge_convolution(xy)
+        xy = self.merge_convolution(xy)
 
         return xy
 
@@ -172,7 +172,7 @@ class cxr_unet_ae (nn.Module):
         self.decoder_modules = nn.ModuleList(
             [
                 nn.ModuleList([
-                    skipConnection(),
+                    skipConnection(in_channels=decoder_params["in_channels"], out_channels=decoder_params["out_channels"]),
                     UNetUpConv(**decoder_params)
                 ]) for decoder_params in self.decoder_params
             ]
