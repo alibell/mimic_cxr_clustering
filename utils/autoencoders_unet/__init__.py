@@ -281,8 +281,8 @@ class cxr_unet_ae_1 (cxr_unet_ae):
         CXR AE 1 - Conv-Deconv Unet auto-encoder without report embedding loss
     """
 
-    def __init__ (self, noise_variance=1e-2):
-        super().__init__(noise_variance=noise_variance)
+    def __init__ (self, noise_variance=1e-2, p_salt_pepper_noise=0.2):
+        super().__init__(noise_variance=noise_variance, p_salt_pepper_noise=p_salt_pepper_noise)
 
         self.optimizer = optim.Adam(self.parameters(), lr=1e-3)
 
@@ -310,8 +310,8 @@ class cxr_unet_ae_2 (cxr_unet_ae):
         CXR AE 1 - Conv-Deconv Unet auto-encoder without report embedding loss
     """
 
-    def __init__ (self, embedding_size=768, noise_variance=1e-4):
-        super().__init__(noise_variance=noise_variance)
+    def __init__ (self, embedding_size=768, noise_variance=1e-2, p_salt_pepper_noise=0.2):
+        super().__init__(noise_variance=noise_variance, p_salt_pepper_noise=p_salt_pepper_noise)
 
         self.embedding_size = embedding_size
         self.embeddings_decoder = nn.Sequential(
