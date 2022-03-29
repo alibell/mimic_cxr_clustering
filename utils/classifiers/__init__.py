@@ -15,7 +15,6 @@ class ImageClassifier(nn.Module):
         self.weights = weights
 
         self.loss_fn = nn.BCELoss()
-        self.criterion = self.loss_fn # for backward compatibility
 
     def forward (self, x):
         return NotImplementedError
@@ -37,7 +36,7 @@ class ImageClassifier(nn.Module):
         
         # Weight balancing
         if self.weight_balance and self.weights is not None:
-            self.criterion.weight = y*self.weights[1,:] + (1-y)*self.weights[0,:]
+            self.loss_fn.weight = y*self.weights[1,:] + (1-y)*self.weights[0,:]
 
         self.train()
         self.optimizer.zero_grad()
