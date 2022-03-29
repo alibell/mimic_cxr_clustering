@@ -17,7 +17,7 @@ class ImageClassifier(nn.Module):
         self.weights = weights
 
         self.loss_fn = nn.BCELoss()
-        if weight_balance:
+        if weight_balance == True:
             self.loss_fn.weight = torch.ones((2, n_labels))
 
     def forward (self, x):
