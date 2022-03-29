@@ -229,6 +229,8 @@ class AEClassifier (ImageClassifier):
 # Classical from embeddings
 class AEClassifier_Embeddings (AEClassifier):
     """
+        Classify from the embedding reconstruction of the AE
+
         Parameters:
         -----------
         n_labels: int, number of labels
