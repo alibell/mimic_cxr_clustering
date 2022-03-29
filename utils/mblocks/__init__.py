@@ -52,3 +52,4 @@ class M_Block (nn.Module):
         output = self.merge_networks(output)
 
         return output
+    
