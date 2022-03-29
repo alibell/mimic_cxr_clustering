@@ -1,5 +1,6 @@
 from torch import nn, optim
 from torchvision.models import mobilenet_v3_small
+from ..mblocks import M_Block
 import torch
 
 #
@@ -15,7 +16,8 @@ class ImageClassifier(nn.Module):
         self.weights = weights
 
         self.loss_fn = nn.BCELoss()
-        self.loss_fn.weight = torch.ones((2, n_labels))
+        if weight_balance:
+            self.loss_fn.weight = torch.ones((2, n_labels))
 
     def forward (self, x):
         return NotImplementedError
@@ -170,3 +172,78 @@ class naiveImageClassifierVanilla (ImageClassifier):
 
         return y_hat
 
+# M-Blocks AE classifiers
+
+class MBlockAEClassifier (ImageClassifier):
+    """
+        Parameters:
+        -----------
+        n_labels: int, number of labels
+        weight_balance: boolean, if true the weight is balanced in the CE Loss
+        weights: dict, weights of the labels
+        train_ae: boolean, if true the AE is re-trained
+    """
+    def __init__ (self, pretrained, n_labels=9, weight_balance=True, weights=None, train_ae=True):
+        super().__init__(n_labels=n_labels, weight_balance=weight_balance, weights=weights)
+
+       # Getting backbone
+        self.encoder = torch.copy(pretrained)
+        for param in self.encoder.parameters():
+            param.requires_grad = train_ae
+
+        # Declaring M-Blocks
+        self.m_blocks = nn.ModuleDict({
+            "0": nn.ModuleList([
+                M_Block(1, 64),
+                M_Block(64, 128),
+                M_Block(128, 256),
+                M_Block(256, 512)
+            ]),
+            "1": nn.ModuleList([
+              M_Block(32, 96),
+              M_Block(96, 192),
+              M_Block(192, 384)
+            ]),
+            "2": nn.ModuleList([
+              M_Block(64, 144),                                
+              M_Block(144, 288)
+            ]),
+            "3": nn.ModuleList([
+              M_Block(104, 216),                               
+            ])
+        })
+
+        self.classification_layer = nn.Sequential(
+            nn.AdaptiveAvgPool2d((1,1)),
+            nn.Flatten(),
+            nn.Linear(160, 64),
+            nn.ReLU(),
+            nn.Linear(64, n_labels)
+        )
+
+        self.loss_fn = nn.BCEWithLogitsLoss()
+        self.optimizer = optim.Adam(self.parameters(), lr=1e-4)
+
+    def forward (self, x):
+        x_encoded = self.encoder(x)["intermediates"]
+        x_encoded = [x] + x_encoded
+
+        # Applying the M-Blocks
+        for level in self.m_blocks.keys():
+            x_encoded_level = []
+            for left, right, i in zip(x_encoded[0:-1], x_encoded[1:], range(len(x_encoded)-1)):
+                    x_encoded_level.append(
+                        self.m_blocks[str(level)][i](left, right)
+                    )
+            x_encoded = x_encoded_level
+
+        # Classification layer from the last block
+        y_hat = self.classification_layer(x_encoded[0])
+
+        return y_hat
+
+    def predict_proba (self, x):
+        y_hat = super().predict_proba(x)
+        y_hat = torch.softmax(y_hat, axis=1)
+
+        return y_hat.cpu().numpy()
