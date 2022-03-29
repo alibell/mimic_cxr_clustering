@@ -15,6 +15,7 @@ class ImageClassifier(nn.Module):
         self.weights = weights
 
         self.loss_fn = nn.BCELoss()
+        self.loss_fn.weight = torch.tensor(1)
 
     def forward (self, x):
         return NotImplementedError
