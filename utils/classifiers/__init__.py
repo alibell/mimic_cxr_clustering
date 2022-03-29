@@ -239,7 +239,7 @@ class AEClassifier_Embeddings (AEClassifier):
         train_ae: boolean, if true the AE is re-trained
     """
     def __init__ (self, pretrained, n_labels=9, weight_balance=True, weights=None, train_ae=True):
-        super().__init__(n_labels=n_labels, weight_balance=weight_balance, weights=weights, train_ae=train_ae)
+        super().__init__(pretrained=pretrained, n_labels=n_labels, weight_balance=weight_balance, weights=weights, train_ae=train_ae)
 
         self.classification_layer = nn.Sequential(
             nn.Linear(768, 64),
