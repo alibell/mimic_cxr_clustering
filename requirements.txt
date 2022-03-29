@@ -7,3 +7,4 @@ fasttext
 tqdm
 transformers
 sklearn
+seaborn

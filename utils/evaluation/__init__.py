@@ -3,6 +3,7 @@
 """
 
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from ..image_processing import preprocess_image, numpy_to_tensor, tensor_to_numpy
 from ..training import get_prediction
@@ -98,11 +99,58 @@ def get_metrics_array(predictions, y_trues, metrics=["Accuracy", "Recall", "Prec
     performances_dict = {}
     for metric in metrics:
         if metric == "Accuracy" or y_trues.ndim == 1:
-            performances_dict[metric] = [metrics_functions[metric](y_hat, y_trues) for y_hat in predictions.values()]
+            if metric == "Accuracy":
+                performances_dict[metric] = [(y_hat == y_trues).mean() for y_hat in predictions.values()]
+            else:
+                performances_dict[metric] = [metrics_functions[metric](y_hat, y_trues) for y_hat in predictions.values()]
         else:
-            performances_dict[metric] = [metrics_functions[metric](y_hat, y_trues, average="micro") for y_hat in predictions.values()]
+            performances_dict[metric] = [metrics_functions[metric](y_hat, y_trues, average="micro", zero_division=0) for y_hat in predictions.values()]
 
     performances = np.array(list(zip(*list(performances_dict.values()))))
     
     return performances
 
+def plot_performances(predictions, y_true, n_cols=3):
+    # Parameters
+    columns_names = [x.split("_")[-1] for x in y_true.columns]
+    n_plots = len(columns_names) + 1
+    n_rows = n_plots//n_cols + ((n_plots // n_cols) != 0)
+
+    # Building plot
+    fig, axs = plt.subplots(n_rows, n_cols, figsize=(10*n_cols, 10*n_rows))
+    axs = axs.flatten()
+
+    # Plotting
+    metrics = ["Accuracy", "Recall", "Precision", "F1-Score"]
+
+    performances_dict = {}
+
+    for plot_name, plot_id in zip(["Global"]+columns_names, range(n_plots)):
+        if plot_id != 0:
+            predictions_ = dict([(key, value[:, plot_id-1])for key, value in predictions.items()])
+            y_true_ = y_true.values[:, plot_id-1]
+            
+        else:
+            predictions_ = predictions
+            y_true_ = y_true.values
+
+        # Getting data to plot
+        performances = get_metrics_array(predictions_, y_true_, metrics=metrics)
+        performances_dict[plot_name] = performances
+        for value, label in zip(performances, predictions.keys()):
+            axs[plot_id].scatter(metrics, value, label=label)
+            axs[plot_id].legend()
+            axs[plot_id].set_ylim(0, 1)
+            axs[plot_id].set_title(plot_name)
+
+        # Creating table
+    table_index = predictions.keys()
+    table = pd.concat(
+        [
+            pd.DataFrame(
+                values, 
+                columns=pd.MultiIndex.from_tuples(zip([key for i in range(len(key))], metrics)), 
+                index=table_index) for key, values in performances_dict.items()
+        ], axis=1)
+
+    return table
