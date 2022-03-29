@@ -37,7 +37,7 @@ def display_predictions(dataset, models, device="cpu"):
         input_image = preprocessed_image
 
         if has_noisy:
-            noisy_preprocessed_image = models[0].generate_noisy_image(preprocessed_image, variance=models[0].noise_variance, p_salt_pepper=models[0].salt_and_pepper_noise)
+            noisy_preprocessed_image = models[0].generate_noisy_image(preprocessed_image, variance=models[0].noise_variance, p_salt_pepper=models[0].p_salt_pepper_noise)
             input_image = noisy_preprocessed_image
 
         decoded_images = [model.predict(input_image.unsqueeze(0)) for model in models]
