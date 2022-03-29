@@ -1,5 +1,6 @@
 from torch import nn, optim
 from torchvision.models import mobilenet_v3_small
+from xgboost import train
 from ..mblocks import M_Block
 import torch
 import copy
@@ -222,6 +223,35 @@ class AEClassifier (ImageClassifier):
     def predict_proba (self, x):
         y_hat = super().predict_proba(x)
         y_hat = sigmoid(y_hat)
+
+        return y_hat
+
+# Classical from embeddings
+class AEClassifier_Embeddings (AEClassifier):
+    """
+        Parameters:
+        -----------
+        n_labels: int, number of labels
+        weight_balance: boolean, if true the weight is balanced in the CE Loss
+        weights: dict, weights of the labels
+        train_ae: boolean, if true the AE is re-trained
+    """
+    def __init__ (self, pretrained, n_labels=9, weight_balance=True, weights=None, train_ae=True):
+        super().__init__(n_labels=n_labels, weight_balance=weight_balance, weights=weights, train_ae=train_ae)
+
+        self.classification_layer = nn.Sequential(
+            nn.Linear(768, 64),
+            nn.ReLU(),
+            nn.Linear(64, n_labels)
+        )
+
+        self.optimizer = optim.Adam(self.parameters(), lr=1e-4)
+
+    def forward (self, x):
+        x_encoded = self.encoder.fullpass(x, embedding=True)[1]
+
+        # Classification layer from the last block
+        y_hat = self.classification_layer(x_encoded)
 
         return y_hat
 
