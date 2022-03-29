@@ -315,7 +315,7 @@ class cxr_unet_ae_2 (cxr_unet_ae):
 
         self.embedding_size = embedding_size
         self.embeddings_decoder = nn.Sequential(
-            nn.Conv2d(512, 512, (3,3), padding="same"),
+            nn.Conv2d(1024, 512, (3,3), padding="same"),
             nn.BatchNorm2d(512),
             nn.ReLU(),
             nn.MaxPool2d((2,2)),
