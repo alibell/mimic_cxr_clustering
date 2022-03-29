@@ -72,7 +72,10 @@ class ImageClassifier(nn.Module):
         torch.save(self.state_dict(), path)
 
     def load_model (self, path):
-        self.load_state_dict(torch.load(path))
+        state_dict = torch.load(path)
+        self.loss_fn.weight = torch.ones(state_dict["loss_fn.weight"].shape)
+        
+        self.load_state_dict(state_dict)
 
 # naiveImageClassifier with MobileNet
 
