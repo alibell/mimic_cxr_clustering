@@ -173,6 +173,52 @@ class naiveImageClassifierVanilla (ImageClassifier):
 
         return y_hat
 
+# Classical AE classifiers
+
+class AEClassifier (ImageClassifier):
+    def __init__ (self, pretrained, n_labels=9, weight_balance=True, weights=None, train_ae=True):
+        """
+            Parameters:
+            -----------
+            n_labels: int, number of labels
+            weight_balance: boolean, if true the weight is balanced in the CE Loss
+            weights: dict, weights of the labels
+            train_ae: boolean, if true the AE is re-trained
+        """
+        super().__init__()
+
+       # Getting backbone
+        self.encoder = copy.deepcopy(pretrained.cpu())
+        for param in self.encoder.parameters():
+            param.requires_grad = train_ae
+
+        self.classification_layer = nn.Sequential(
+            nn.AdaptiveAvgPool2d((2,2)),
+            nn.Flatten(),
+            nn.Linear(4096, 512),
+            nn.ReLU(),
+            nn.Linear(512, 64),
+            nn.ReLU(),
+            nn.Linear(64, n_labels)
+        )
+
+        self.loss_fn = nn.BCEWithLogitsLoss()
+        self.optimizer = optim.Adam(self.parameters(), lr=1e-4)
+
+    def forward (self, x):
+        x_encoded = self.encoder(x)["latent_space"]
+
+        # Classification layer from the last block
+        y_hat = self.classification_layer(x_encoded)
+
+        return y_hat
+
+    def predict_proba (self, x):
+        y_hat = super().predict_proba(x)
+        y_hat = nn.Softmax(0)(y_hat)
+
+        return y_hat.cpu().numpy()
+
 # M-Blocks AE classifiers
 
 class MBlockAEClassifier (ImageClassifier):
@@ -245,6 +291,6 @@ class MBlockAEClassifier (ImageClassifier):
 
     def predict_proba (self, x):
         y_hat = super().predict_proba(x)
-        y_hat = torch.softmax(y_hat, axis=1)
+        y_hat = nn.Softmax(0)(y_hat)
 
         return y_hat.cpu().numpy()
