@@ -14,7 +14,8 @@ class ImageClassifier(nn.Module):
         self.weight_balance = weight_balance
         self.weights = weights
 
-        self.criterion = nn.BCELoss()
+        self.loss_fn = nn.BCELoss()
+        self.criterion = self.loss_fn # for backward compatibility
 
     def forward (self, x):
         return NotImplementedError
@@ -51,7 +52,7 @@ class ImageClassifier(nn.Module):
         loss_scalar = loss.detach().cpu().item()
         
         return [loss_scalar]
-        
+
     def save_model (self, path):
         torch.save(self.state_dict(), path)
 
