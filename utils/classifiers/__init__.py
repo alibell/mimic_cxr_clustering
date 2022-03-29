@@ -185,7 +185,7 @@ class AEClassifier (ImageClassifier):
             weights: dict, weights of the labels
             train_ae: boolean, if true the AE is re-trained
         """
-        super().__init__()
+        super().__init__(n_labels=n_labels, weight_balance=weight_balance, weights=weights)
 
        # Getting backbone
         self.encoder = copy.deepcopy(pretrained.cpu())
