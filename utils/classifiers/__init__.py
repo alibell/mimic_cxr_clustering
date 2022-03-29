@@ -203,6 +203,8 @@ class AEClassifier (ImageClassifier):
         )
 
         self.loss_fn = nn.BCEWithLogitsLoss()
+        if weight_balance == True:
+            self.loss_fn.weight = torch.ones((2, n_labels))
         self.optimizer = optim.Adam(self.parameters(), lr=1e-4)
 
     def forward (self, x):
@@ -269,6 +271,9 @@ class MBlockAEClassifier (ImageClassifier):
         )
 
         self.loss_fn = nn.BCEWithLogitsLoss()
+        if weight_balance == True:
+            self.loss_fn.weight = torch.ones((2, n_labels))
+
         self.optimizer = optim.Adam(self.parameters(), lr=1e-4)
 
     def forward (self, x):
