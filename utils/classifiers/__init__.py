@@ -187,7 +187,7 @@ class MBlockAEClassifier (ImageClassifier):
         super().__init__(n_labels=n_labels, weight_balance=weight_balance, weights=weights)
 
        # Getting backbone
-        self.encoder = torch.copy(pretrained)
+        self.encoder = torch.clone(pretrained)
         for param in self.encoder.parameters():
             param.requires_grad = train_ae
 
