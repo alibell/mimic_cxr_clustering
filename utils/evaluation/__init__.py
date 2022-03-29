@@ -52,7 +52,7 @@ def display_predictions(dataset, models, device="cpu"):
             else:
                 decoded_id = j-(1+has_noisy)
                 decoded_image = decoded_images[decoded_id]
-                if isinstance(decoded_image, list):
+                if isinstance(decoded_image, tuple):
                     decoded_image = decoded_image[0]
                 axs[i][j].imshow(tensor_to_numpy(decoded_image), cmap="gray")
                 axs[i][j].set_title(f"AF {decoded_id}")
