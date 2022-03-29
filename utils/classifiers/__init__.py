@@ -2,6 +2,7 @@ from torch import nn, optim
 from torchvision.models import mobilenet_v3_small
 from ..mblocks import M_Block
 import torch
+import copy
 
 #
 # All classifiers should inherit from ImageClassifier
@@ -187,7 +188,7 @@ class MBlockAEClassifier (ImageClassifier):
         super().__init__(n_labels=n_labels, weight_balance=weight_balance, weights=weights)
 
        # Getting backbone
-        self.encoder = torch.clone(pretrained)
+        self.encoder = copy.deepcopy(pretrained.cpu())
         for param in self.encoder.parameters():
             param.requires_grad = train_ae
 
