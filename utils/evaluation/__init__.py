@@ -51,5 +51,8 @@ def display_predictions(dataset, models, device="cpu"):
                 axs[i][j].set_title("Original with gaussian noise")
             else:
                 decoded_id = j-(1+has_noisy)
-                axs[i][j].imshow(tensor_to_numpy(decoded_images[decoded_id]), cmap="gray")
+                decoded_image = decoded_images[decoded_id]
+                if isinstance(decoded_image, list):
+                    decoded_image = decoded_image[0]
+                axs[i][j].imshow(tensor_to_numpy(decoded_image), cmap="gray")
                 axs[i][j].set_title(f"AF {decoded_id}")
