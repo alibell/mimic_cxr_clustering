@@ -115,3 +115,58 @@ class naiveImageClassifierMobileNet (ImageClassifier):
 
         return y_hat
 
+# naiveImageClassifier without MobileNet
+
+class naiveImageClassifierVanilla (ImageClassifier):
+
+    def __init__ (self, n_labels=9, weight_balance=True, weights=None):
+        super().__init__(n_labels=n_labels, weight_balance=weight_balance, weights=weights)
+
+        # Layer that duplicate the color layer (b&w to rgb)
+        duplicate_color_layers = nn.Conv2d(in_channels=1, out_channels=3, kernel_size=(1,1), padding="same")
+        duplicate_color_layers.requires_grad_(False)
+        duplicate_color_layers.load_state_dict({
+            "weight":torch.ones(duplicate_color_layers.weight.shape, dtype=torch.float32),
+            "bias":torch.zeros(duplicate_color_layers.bias.shape)
+        })
+
+        self.classification_layer = nn.Sequential(
+            nn.Conv2d(1, 3, (3,3), padding="same"),
+            nn.ReLU(),
+            nn.Conv2d(3, 6, (3,3), padding="same"),
+            nn.ReLU(),
+            nn.BatchNorm2d(6),
+            nn.MaxPool2d((2,2)),
+            nn.Conv2d(6, 12, (3,3), padding="same"),
+            nn.ReLU(),
+            nn.Conv2d(12, 24, (3,3), padding="same"),
+            nn.ReLU(),
+            nn.BatchNorm2d(24),
+            nn.MaxPool2d((2,2)),
+            nn.Conv2d(24, 48, (3,3), padding="same"),
+            nn.ReLU(),
+            nn.BatchNorm2d(48),
+            nn.MaxPool2d((2,2)),
+            nn.Conv2d(48, 96, (3,3), padding="same"),
+            nn.BatchNorm2d(96),
+            nn.MaxPool2d((2,2)),
+            nn.ReLU(),
+            nn.Conv2d(96, 256, (3,3), padding="same"),
+            nn.BatchNorm2d(256),
+            nn.ReLU(),
+            nn.AdaptiveAvgPool2d((2,2)),
+            nn.Flatten(),
+            nn.Linear(1024, 512),
+            nn.ReLU(),
+            nn.Linear(512, 32),
+            nn.ReLU(),
+            nn.Linear(32, n_labels),
+            nn.Sigmoid()
+        )
+        self.optimizer = optim.Adam(self.parameters(), lr=1e-4)
+
+    def forward (self, x):
+        y_hat = self.classification_layer(x)
+
+        return y_hat
+
