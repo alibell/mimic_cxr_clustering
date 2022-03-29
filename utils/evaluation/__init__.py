@@ -5,6 +5,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from ..image_processing import preprocess_image, numpy_to_tensor, tensor_to_numpy
+from ..training import get_prediction
+from ..image_processing import get_collater
+
+from sklearn.metrics import accuracy_score, f1_score, recall_score, precision_score
 
 # Images evaluations
 
@@ -55,4 +59,50 @@ def display_predictions(dataset, models, device="cpu"):
                 if isinstance(decoded_image, tuple):
                     decoded_image = decoded_image[0]
                 axs[i][j].imshow(tensor_to_numpy(decoded_image), cmap="gray")
-                axs[i][j].set_title(f"AF {decoded_id}")
+                axs[i][j].set_title(f"AF {decoded_id+1}")
+
+# Classifier evaluation
+
+def get_prediction_dict(models_dict, X_test):
+    y_hats = []
+
+    # Getting predictions for each model
+    for value in models_dict.values():
+        y_hat = get_prediction(
+            value,
+            X_test,
+            batch_size=1,
+            collater_fn_x=get_collater(size=512, crop=False, resize_crop=False, rotate=False),
+            use_gpu_if_available=True
+        )
+
+        y_hats.append(y_hat)
+
+    predictions = dict(zip(models_dict.keys(), y_hats))
+
+    return predictions
+
+def get_metrics_array(predictions, y_trues, metrics=["Accuracy", "Recall", "Precision", "F1-Score"]):
+    """
+        This function an array of metrics according to predictions and y_trues
+        The array is of size : (n_models, n_metrics)
+    """
+    
+    metrics_functions = {
+        "Accuracy":accuracy_score,
+        "Recall":recall_score,
+        "Precision":precision_score,
+        "F1-Score":f1_score
+    }
+
+    performances_dict = {}
+    for metric in metrics:
+        if metric == "Accuracy" or y_trues.ndim == 1:
+            performances_dict[metric] = [metrics_functions[metric](y_hat, y_trues) for y_hat in predictions.values()]
+        else:
+            performances_dict[metric] = [metrics_functions[metric](y_hat, y_trues, average="micro") for y_hat in predictions.values()]
+
+    performances = np.array(list(zip(*list(performances_dict.values()))))
+    
+    return performances
+
