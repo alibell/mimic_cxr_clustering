@@ -217,7 +217,7 @@ class AEClassifier (ImageClassifier):
 
     def predict_proba (self, x):
         y_hat = super().predict_proba(x)
-        y_hat = nn.Softmax(0)(y_hat)
+        y_hat = torch.sigmoid(y_hat)
 
         return y_hat.cpu().numpy()
 
@@ -296,6 +296,6 @@ class MBlockAEClassifier (ImageClassifier):
 
     def predict_proba (self, x):
         y_hat = super().predict_proba(x)
-        y_hat = nn.Softmax(0)(y_hat)
+        y_hat = torch.sigmoid(y_hat)
 
         return y_hat.cpu().numpy()
