@@ -3,10 +3,14 @@ from torchvision.models import mobilenet_v3_small
 from ..mblocks import M_Block
 import torch
 import copy
+import numpy as np
 
 #
 # All classifiers should inherit from ImageClassifier
 #
+
+def sigmoid(x):
+    return  1/(1 + np.exp(-x))
 
 class ImageClassifier(nn.Module):
     def __init__ (self, n_labels=9, weight_balance=True, weights=None):
@@ -217,9 +221,9 @@ class AEClassifier (ImageClassifier):
 
     def predict_proba (self, x):
         y_hat = super().predict_proba(x)
-        y_hat = torch.sigmoid(y_hat)
+        y_hat = sigmoid(y_hat)
 
-        return y_hat.cpu().numpy()
+        return y_hat
 
 # M-Blocks AE classifiers
 
@@ -296,6 +300,6 @@ class MBlockAEClassifier (ImageClassifier):
 
     def predict_proba (self, x):
         y_hat = super().predict_proba(x)
-        y_hat = torch.sigmoid(y_hat)
+        y_hat = sigmoid(y_hat)
 
-        return y_hat.cpu().numpy()
+        return y_hat
