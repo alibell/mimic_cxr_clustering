@@ -1,6 +1,7 @@
 # Functions needed to create M-Blocks classifiers
 
 from torch import nn
+import torch
 
 class M_Block (nn.Module):
     """
